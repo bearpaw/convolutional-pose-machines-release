@@ -172,7 +172,8 @@ def float2bytes(floats):
 	return struct.pack('%sf' % len(floats), *floats)
 
 if __name__ == "__main__":
-	
+	if not os.path.exists('lmdb'):
+		os.makedirs('lmdb')
 	#writeLMDB(['MPI'], 'lmdb/MPI_train_split', 1) # only include split training data (validation data is held out)
 	#writeLMDB(['MPI'], 'lmdb/MPI_alltrain', 0)
 	#writeLMDB(['LEEDS'], 'lmdb/LEEDS_PC', 0)

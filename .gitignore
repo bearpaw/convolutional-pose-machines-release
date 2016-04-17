@@ -1,3 +1,4 @@
+caffe
 dataset/FLIC
 dataset/LEEDS
 dataset/MPI/images
@@ -10,3 +11,4 @@ testing/results/
 *.m~
 caffePath.cfg
 models/
+*.log

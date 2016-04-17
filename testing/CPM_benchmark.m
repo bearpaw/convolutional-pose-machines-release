@@ -28,7 +28,7 @@ switch(selection)
         % FLIC score 95.03% wrist PCK@0.2, 97.59% elbow PCK@0.2
 end
 
-makeFigure = 0; % switch to 1 to see result visually for LSP and FLIC
+makeFigure = 1; % switch to 1 to see result visually for LSP and FLIC
 
 %% run
 prediction_file = run_benchmark(param, benchmark_data, benchmark_modelID, makeFigure);

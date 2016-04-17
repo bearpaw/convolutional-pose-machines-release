@@ -167,51 +167,50 @@ if __name__ == "__main__":
     if not os.path.exists('prototxt'):
         os.makedirs('prototxt')
 
+    ### Change here for different dataset
+    directory = 'prototxt/LEEDS_PC'
+    dataFolder = 'lmdb/LEEDS_PC'
+    stepsize = 136106 # stepsize to decrease learning rate. This should depend on your dataset size
+    ###
+
+    batch_size = 16
+    d_caffemodel = '%s/caffemodel' % directory # the place you want to store your caffemodel
+    base_lr = 8e-5
+    transform_param = dict(stride=8, crop_size_x=368, crop_size_y=368, 
+                             target_dist=1.171, scale_prob=1, scale_min=0.7, scale_max=1.3,
+                             max_rotate_degree=40, center_perterb_max=0, do_clahe=False)
+    nCP = 3
+    CH = 128
+    stage = 6
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    if not os.path.exists(d_caffemodel):
+        os.makedirs(d_caffemodel)
+    
+    layername = ['C', 'P'] * nCP + ['C','C','D','C','D','C'] + ['L'] # first-stage
+    kernel =    [ 9,  3 ] * nCP + [ 5 , 9 , 0 , 1 , 0 , 1 ] + [0] # first-stage
+    outCH =     [128, 128] * nCP + [ 32,512, 0 ,512, 0 ,15 ] + [0] # first-stage
+    stride =    [ 1 ,  2 ] * nCP + [ 1 , 1 , 0 , 1 , 0 , 1 ] + [0] # first-stage
+
+    if stage >= 2:
+        layername += ['C', 'P'] * nCP + ['$'] + ['C'] + ['@'] + ['C'] * 5            + ['L']
+        outCH +=     [128, 128] * nCP + [ 0 ] + [32 ] + [ 0 ] + [128,128,128,128,15] + [ 0 ]
+        kernel +=    [ 9,   3 ] * nCP + [ 0 ] + [ 5 ] + [ 0 ] + [11, 11, 11, 1,   1] + [ 0 ]
+        stride +=    [ 1 ,  2 ] * nCP + [ 0 ] + [ 1 ] + [ 0 ] + [ 1 ] * 5            + [ 0 ]
+
+        for s in range(3, stage+1):
+            layername += ['$'] + ['C'] + ['@'] + ['C'] * 5            + ['L']
+            outCH +=     [ 0 ] + [32 ] + [ 0 ] + [128,128,128,128,15] + [ 0 ]
+            kernel +=    [ 0 ] + [ 5 ] + [ 0 ] + [11, 11, 11,  1, 1 ] + [ 0 ]
+            stride +=    [ 0 ] + [ 1 ] + [ 0 ] + [ 1 ] * 5            + [ 0 ]
+
+    label_name = ['label_1st_lower', 'label_lower']
+    writePrototxts(dataFolder, directory, batch_size, stepsize, layername, kernel, stride, outCH, transform_param, base_lr, d_caffemodel, label_name)
     # write training scripts
-    filename = 'prototxt/MPI_validation/train.sh'
+    filename = 'prototxt/LEEDS_PC/train.sh'
     trainfile = open(filename, 'w')
     cmd = 'postfix=`date +"%m_%d_%y"`\n'
-    cmd += '%s/build/tools/caffe train \\\n' % caffe_path[0].rstrip()
-    cmd += '-solver ./prototxt/MPI_validation/pose_solver.prototxt \\\n'
-    cmd += '-gpu 0,1  2>&1 | tee ./prototxt/MPI_validation/caffemodel/train_$postfix.log'
+    cmd += '../%s/build/tools/caffe train \\\n' % caffe_path[0].rstrip()
+    cmd += '-solver ./prototxt/LEEDS_PC/pose_solver.prototxt \\\n'
+    cmd += '-gpu 0,1  2>&1 | tee ./prototxt/LEEDS_PC/caffemodel/train_$postfix.log'
     trainfile.write(cmd)
-    # target.write(line1)
-    # ### Change here for different dataset
-    # directory = 'prototxt/MPI_validation'
-    # dataFolder = 'lmdb/MPI_validation'
-    # stepsize = 136106 # stepsize to decrease learning rate. This should depend on your dataset size
-    # ###
-
-    # batch_size = 16
-    # d_caffemodel = '%s/caffemodel' % directory # the place you want to store your caffemodel
-    # base_lr = 8e-5
-    # transform_param = dict(stride=8, crop_size_x=368, crop_size_y=368, 
-    #                          target_dist=1.171, scale_prob=1, scale_min=0.7, scale_max=1.3,
-    #                          max_rotate_degree=40, center_perterb_max=0, do_clahe=False)
-    # nCP = 3
-    # CH = 128
-    # stage = 6
-    # if not os.path.exists(directory):
-    #     os.makedirs(directory)
-    # if not os.path.exists(d_caffemodel):
-    #     os.makedirs(d_caffemodel)
-    
-    # layername = ['C', 'P'] * nCP + ['C','C','D','C','D','C'] + ['L'] # first-stage
-    # kernel =    [ 9,  3 ] * nCP + [ 5 , 9 , 0 , 1 , 0 , 1 ] + [0] # first-stage
-    # outCH =     [128, 128] * nCP + [ 32,512, 0 ,512, 0 ,15 ] + [0] # first-stage
-    # stride =    [ 1 ,  2 ] * nCP + [ 1 , 1 , 0 , 1 , 0 , 1 ] + [0] # first-stage
-
-    # if stage >= 2:
-    #     layername += ['C', 'P'] * nCP + ['$'] + ['C'] + ['@'] + ['C'] * 5            + ['L']
-    #     outCH +=     [128, 128] * nCP + [ 0 ] + [32 ] + [ 0 ] + [128,128,128,128,15] + [ 0 ]
-    #     kernel +=    [ 9,   3 ] * nCP + [ 0 ] + [ 5 ] + [ 0 ] + [11, 11, 11, 1,   1] + [ 0 ]
-    #     stride +=    [ 1 ,  2 ] * nCP + [ 0 ] + [ 1 ] + [ 0 ] + [ 1 ] * 5            + [ 0 ]
-
-    #     for s in range(3, stage+1):
-    #         layername += ['$'] + ['C'] + ['@'] + ['C'] * 5            + ['L']
-    #         outCH +=     [ 0 ] + [32 ] + [ 0 ] + [128,128,128,128,15] + [ 0 ]
-    #         kernel +=    [ 0 ] + [ 5 ] + [ 0 ] + [11, 11, 11,  1, 1 ] + [ 0 ]
-    #         stride +=    [ 0 ] + [ 1 ] + [ 0 ] + [ 1 ] * 5            + [ 0 ]
-
-    # label_name = ['label_1st_lower', 'label_lower']
-    # writePrototxts(dataFolder, directory, batch_size, stepsize, layername, kernel, stride, outCH, transform_param, base_lr, d_caffemodel, label_name)
