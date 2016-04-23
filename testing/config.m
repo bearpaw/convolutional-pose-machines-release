@@ -6,7 +6,7 @@ function param = config()
 param.use_gpu = 1;
 
 % GPU device number (doesn't matter for CPU mode)
-GPUdeviceNumber = 0;
+GPUdeviceNumber = 2;
 
 % Select model (default: 1)
 % 1: MPII+LSP(PC) 6-stage CPM
@@ -25,8 +25,9 @@ param.octave = 6;
 %% don't edit this part
 
 % path of your caffe
-caffepath = textread('../caffePath.cfg', '%s', 'whitespace', '\n\t\b ');
-caffepath= [caffepath{1} '/matlab/'];
+% caffepath = textread('../caffePath.cfg', '%s', 'whitespace', '\n\t\b ');
+% caffepath= [caffepath{1} '/matlab/'];
+caffepath = '/home/wyang/code/caffe-bearpaw/matlab'
 fprintf('You set your caffe in caffePath.cfg at: %s\n', caffepath);
 addpath(caffepath);
 caffe.reset_all();
@@ -99,3 +100,35 @@ param.model(4).limbs = [1 2; 2 3; 4 5; 5 6];
 param.model(4).part_str = {'Lsho', 'Lelb', 'Lwri', ...
                            'Rsho', 'Relb', 'Rwri', ...
                            'Lhip', 'Rhip', 'head', 'bkg'};
+
+% ---- wyang trained                         
+param.model(5).caffemodel = '../training/prototxt/LEEDS_PC/caffemodel/pose_iter_113000.caffemodel';
+param.model(5).deployFile = '../training/prototxt/LEEDS_PC/pose_deploy.prototxt';
+param.model(5).description = 'LSP-only-wyang-113000';
+param.model(5).description_short = 'LSP-only-wyang-113000';
+param.model(5).boxsize = 368;
+param.model(5).padValue = 128;
+param.model(5).np = 14;
+param.model(5).sigma = 21;
+param.model(5).stage = 6;
+param.model(5).limbs = [1 2; 3 4; 4 5; 6 7; 7 8; 9 10; 10 11; 12 13; 13 14];
+param.model(5).part_str = {'head', 'neck', 'Rsho', 'Relb', 'Rwri', ...
+                         'Lsho', 'Lelb', 'Lwri', ...
+                         'Rhip', 'Rkne', 'Rank', ...
+                         'Lhip', 'Lkne', 'Lank', 'bkg'};
+                       
+% ---- wyang trained                         
+param.model(6).caffemodel = '../training/prototxt/MPI_validation/caffemodel/pose_iter_123000.caffemodel';
+param.model(6).deployFile = '../training/prototxt/MPI_validation/pose_deploy.prototxt';
+param.model(6).description = 'MPII_LSP_wyang_123000';
+param.model(6).description_short = 'MPII_LSP_wyang_123000';
+param.model(6).boxsize = 368;
+param.model(6).padValue = 128;
+param.model(6).np = 14;
+param.model(6).sigma = 21;
+param.model(6).stage = 6;
+param.model(6).limbs = [1 2; 3 4; 4 5; 6 7; 7 8; 9 10; 10 11; 12 13; 13 14];
+param.model(6).part_str = {'head', 'neck', 'Rsho', 'Relb', 'Rwri', ...
+                         'Lsho', 'Lelb', 'Lwri', ...
+                         'Rhip', 'Rkne', 'Rank', ...
+                         'Lhip', 'Lkne', 'Lank', 'bkg'};

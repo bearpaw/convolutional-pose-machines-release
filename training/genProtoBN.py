@@ -65,9 +65,13 @@ def setLayers(data_source, batch_size, layername, kernel, stride, outCH, label_n
             last_layer = conv_name
             if layername[l+1] != 'L':
                 if(state == 'image'):
+                    bnname = 'bn%d_stage%d' % (conv_counter, stage)
+                    n.tops[bnname] = L.BatchNorm(n.tops[last_layer], in_place=False)
                     ReLUname = 'relu%d_stage%d' % (conv_counter, stage)
                     n.tops[ReLUname] = L.ReLU(n.tops[last_layer], in_place=True)
                 else:
+                    bnname = 'Mbn%d_stage%d' % (conv_counter, stage)
+                    n.tops[bnname] = L.BatchNorm(n.tops[last_layer], in_place=False)
                     ReLUname = 'Mrelu%d_stage%d' % (conv_counter, stage)
                     n.tops[ReLUname] = L.ReLU(n.tops[last_layer], in_place=True)
                 last_layer = ReLUname
@@ -178,8 +182,8 @@ if __name__ == "__main__":
 
     # generate protofiles
     ### Change here for different dataset
-    directory = 'prototxt/MPI_validation'
-    dataFolder = 'lmdb/MPI_validation'
+    directory = 'prototxt/LEEDS_BN'
+    dataFolder = 'lmdb/LEEDS_PC'
     stepsize = 136106 # stepsize to decrease learning rate. This should depend on your dataset size
     ###
 

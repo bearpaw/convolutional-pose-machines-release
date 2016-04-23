@@ -15,7 +15,7 @@ function genJSON(dataset)
         tompson_i_p = [tompson.RELEASE_img_index; tompson.RELEASE_person_index];
 
         count = 1;
-        makeFigure = 0;
+        makeFigure = 1;
         validationCount = 0;
 
         for i = trainIdx
@@ -103,7 +103,7 @@ function genJSON(dataset)
                 end
                 
                 if(makeFigure) % visualizing to debug
-                    imshow(joint_all(count).img_paths); 
+                    imshow(['../dataset/MPI/images/', joint_all(count).img_paths]); 
                     hold on;
                     visiblePart = joint_all(count).joint_self(:,3) == 1;
                     invisiblePart = joint_all(count).joint_self(:,3) == 0;
@@ -111,12 +111,12 @@ function genJSON(dataset)
                     plot(joint_all(count).joint_self(invisiblePart,1), joint_all(count).joint_self(invisiblePart,2), 'rx');
                     plot(joint_all(count).objpos(1), joint_all(count).objpos(2), 'cs');
                     if(~isempty(joint_all(count).joint_others))
-                        for op = 1:size(joint_all(count).joint_others, 3)
-                            visiblePart = joint_all(count).joint_others(:,3,op) == 1;
-                            invisiblePart = joint_all(count).joint_others(:,3,op) == 0;
-                            plot(joint_all(count).joint_others(visiblePart,1,op), joint_all(count).joint_others(visiblePart,2,op), 'mx');
-                            plot(joint_all(count).joint_others(invisiblePart,1,op), joint_all(count).joint_others(invisiblePart,2,op), 'cx');
-                        end
+                      for op = 1:size(joint_all(count).joint_others, 3)
+                          visiblePart = joint_all(count).joint_others{op}(:,3) == 1;
+                          invisiblePart = joint_all(count).joint_others{op}(:,3) == 0;
+                          plot(joint_all(count).joint_others{op}(visiblePart,1), joint_all(count).joint_others{op}(visiblePart,2), 'mx');
+                          plot(joint_all(count).joint_others{op}(invisiblePart,1), joint_all(count).joint_others{op}(invisiblePart,2), 'cx');  
+                      end
                     end
                     close all;
                 end

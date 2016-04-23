@@ -230,6 +230,7 @@ elseif(strcmp(benchmark_data, 'FLIC'))
 
         multiplier = scale_search;
         score = cell(1, length(multiplier));
+        score_flip = cell(1, length(multiplier));
         peakValue = zeros(length(multiplier), np+1);
         pad = cell(1, length(multiplier));
         
@@ -239,13 +240,28 @@ elseif(strcmp(benchmark_data, 'FLIC'))
 
             center_s = center * scale;
             [imageToTest, pad{m}] = padAround(imageToTest, boxsize, center_s);
-
             imageToTest = preprocess(imageToTest, 0.5, center_map);
             score{m} = applyDNN(imageToTest, net);
             pool_time = size(imageToTest,1) / size(score{m},1);
             score{m} = imresize(score{m}, pool_time);
             score{m} = resizeIntoScaledImg(score{m}, pad{m});
             score{m} = imresize(score{m}, [size(oriImg,2) size(oriImg,1)]);
+            
+            % flip score                      
+            imageToTest_flip = imageToTest(end:-1:1,:,:);
+            pad_flip = pad{m}([1, 4, 3, 2]);
+            score_flip{m} = applyDNN(imageToTest_flip, net);
+            pool_time = size(imageToTest,1) / size(score_flip{m},1);
+            score_flip{m} = imresize(score_flip{m}, pool_time);
+            score_flip{m} = resizeIntoScaledImg(score_flip{m}, pad_flip);
+            score_flip{m} = imresize(score_flip{m}, [size(oriImg,2) size(oriImg,1)]);    
+            
+            
+            symmetry_joints = [4 5 6 1 2 3 8 7 9 10];
+%             for ii =1 :10
+%               subplot(1, 2, 1); imagesc(score{m}(:,:,ii)); hold on;
+%               subplot(1, 2, 2); imagesc(score_flip{m}(:,:,symmetry_joints(ii))); hold on; pause;
+%             end
         end
         
         % summing up scores
@@ -254,6 +270,18 @@ elseif(strcmp(benchmark_data, 'FLIC'))
             final_score = final_score + score{m};
         end
         final_score = permute(final_score, [2 1 3]);
+        
+        % flipped score
+        symmetry_joints = [4 5 6 1 2 3 8 7 9 10];
+        final_score_flip = zeros(size(score_flip{1}));
+        for m = 1:size(score_flip,2)
+            final_score_flip = final_score_flip + score_flip{m};
+        end
+        final_score_flip = permute(final_score_flip, [2 1 3]);
+        final_score_flip = final_score_flip(:,:,symmetry_joints);
+        final_score_flip = final_score_flip(:, end:-1:1, :);
+        
+        final_score = 0.5*(final_score + final_score_flip);
         % ----- generate prediction -----
         prediction = zeros(np,2);
         for j = 1:np

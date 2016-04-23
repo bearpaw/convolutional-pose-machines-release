@@ -148,8 +148,8 @@ def writeLMDB(datasets, lmdb_path, validation):
 					for j in range(len(row_binary)):
 						meta_data[clidx][j] = ord(row_binary[j])
 					clidx = clidx + 1
-		
-		# print meta_data[0:12,0:48] 
+
+		# print meta_data[0:12,0:48]
 		# total 7+4*nop lines
 		img4ch = np.concatenate((img, meta_data), axis=2)
 		img4ch = np.transpose(img4ch, (2, 0, 1))

@@ -8,6 +8,7 @@ training/json/*
 training/prototxt/*
 *.caffemodel
 testing/results/
+testing/predicts/
 *.m~
 caffePath.cfg
 models/
